@@ -1,26 +1,40 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState } from 'react';
+import axios from 'axios';
 import './App.css';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const [percentage, setPercentage] = useState(0);
+    const [progress,   setProgress] = useState(null);
+
+    const download = () => {
+        const documentStyles = document.documentElement.style;
+        let progress = 0;
+    
+        setProgress('in-progress');
+    
+        axios({
+            url: 'https://www.placecage.com/3499/3499',
+            onDownloadProgress(progressEvent) {
+                progress = Math.round((progressEvent.loaded / progressEvent.total) * 100);
+
+                setPercentage(progress);
+
+                documentStyles.setProperty('--progress', `${progress}%`);
+            }
+        }).then(response => {
+            setProgress('finished');
+        });
+    };
+
+    return (
+        <div className={`progress-button ${progress}`}>
+            <span className="loading-text">Loading</span>
+                <button className="download-button" onClick={download}>
+                    <span className="button-text">{progress === 'finished' ? '🎉 Done' : 'Download'}</span>
+                </button>
+            <span className="percentage">{percentage}%</span>
+        </div>
+    );
 }
 
 export default App;
